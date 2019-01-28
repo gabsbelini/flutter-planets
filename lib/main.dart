@@ -7,19 +7,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      title: 'Planets',
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-  final String title;
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -32,8 +26,6 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           CustomAppBar(),
           HomePageBody(),
-          HomePageBody(),
-          HomePageBody(),
         ],
       ),
       );
@@ -43,7 +35,26 @@ class _MyHomePageState extends State<MyHomePage> {
 class HomePageBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return PlanetRow(planets[2]);
+    return Expanded(
+      child: Container(
+        color: Color(0xFF736AB7),
+        child: CustomScrollView(
+          scrollDirection: Axis.vertical,
+          slivers: <Widget>[
+            SliverPadding(
+              padding: EdgeInsets.symmetric(vertical: 24.0),
+              sliver: SliverFixedExtentList(
+                itemExtent: 152.0,
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => PlanetRow(planets[index]),
+                  childCount: planets.length,
+                )
+              )
+            )
+          ],
+        )
+      ),
+    );
   }
 }
 
@@ -52,15 +63,8 @@ class PlanetRow extends StatelessWidget {
       fontFamily: 'Poppins'
     );
 
-  
-
   final Planet planet;
-
   PlanetRow(this.planet);
-
- 
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -106,8 +110,8 @@ class PlanetRow extends StatelessWidget {
           Container(
             margin: EdgeInsets.symmetric(vertical: 8.0),
             height: 2.0,
-            width: 18.0,
-            color: Color(0xff00c6ff)
+            width: 156.0,
+            color: Color(0xCCBE0E0E)
           ),
           Row(
             children: <Widget>[
@@ -140,23 +144,38 @@ class PlanetRow extends StatelessWidget {
       ]
     )
   );
+
     final planetThumbnail = Container(
     margin: EdgeInsets.symmetric(vertical: 16),
     alignment: FractionalOffset.centerLeft,
-    child: new Image(
-      image: new AssetImage(planet.image),
-      height: 92.0,
-      width: 92.0,
-    ),
+    child: Hero(
+      tag: "planet-hero-${planet.id}",
+      child: Image(
+        image: new AssetImage(planet.image),
+        height: 92.0,
+        width: 92.0,
+      ),
+    )
   );
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Stack(
+
+  return new GestureDetector(
+    onTap: () => Navigator.of(context).push(new PageRouteBuilder(
+      pageBuilder: (_, __, ___) => new DetailPage(planet),
+    )),
+    child: new Container(
+      height: 120.0,
+      margin: const EdgeInsets.symmetric(
+        vertical: 16.0,
+        horizontal: 24.0,
+      ),
+      child: new Stack(
         children: <Widget>[
           planetCard,
-          planetThumbnail
-      ],),
-    );
+          planetThumbnail,
+        ],
+      ),
+    )
+  );
   }
 }
 
@@ -219,3 +238,28 @@ List<Planet> planets = [
     image: "assets/images/mercury.png",
   ),
 ];
+
+
+class DetailPage extends StatelessWidget {
+  final Planet planet;
+  DetailPage(this.planet);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        constraints: BoxConstraints.expand(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(planet.name),
+            Hero(
+            tag: "planet-hero-${planet.id}",
+            child: Image.asset(planet.image, width: 96.0, height: 96.0)
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
